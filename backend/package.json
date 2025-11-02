@@ -1,0 +1,14 @@
+
+{
+  "name": "update-tracker-backend",
+  "version": "1.0.0",
+  "description": "Proxy server for Gemini API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.28.0",
+    "express": "^4.19.2"
+  }
+}

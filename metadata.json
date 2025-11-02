@@ -1,0 +1,5 @@
+{
+  "name": "Update Tracker & AI Assistant",
+  "description": "An application to track GitHub repository updates and aggregate news from various sources, featuring an integrated AI chat assistant powered by Gemini for insights and conversations.",
+  "requestFramePermissions": []
+}
