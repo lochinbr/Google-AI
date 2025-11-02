@@ -1,0 +1,19 @@
+{
+  "name": "update-tracker-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@google/genai": "^1.28.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "esbuild index.tsx --bundle --outfile=dist/index.js --loader:.tsx=tsx --define:process.env.NODE_ENV='\"production\"' --minify"
+  }
+}

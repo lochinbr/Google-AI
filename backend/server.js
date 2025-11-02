@@ -1,4 +1,3 @@
-
 const express = require('express');
 const { GoogleGenAI } = require('@google/genai');
 
@@ -11,20 +10,24 @@ if (!API_KEY) {
 }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-// Generic proxy for non-streaming generateContent calls
+// Generic proxy for non-streaming calls
 app.post('/api/gemini-proxy', async (req, res) => {
   try {
-    const { model, contents, config } = req.body;
+    const { endpoint, params } = req.body;
 
-    if (!model || !contents) {
-        return res.status(400).json({ error: 'Missing model or contents in request body.' });
+    if (!endpoint || !params) {
+        return res.status(400).json({ error: 'Missing endpoint or params in request body.' });
     }
-    
-    const result = await ai.models.generateContent({ model, contents, config });
-    res.json(result);
+
+    if (endpoint === 'generateContent') {
+        const result = await ai.models.generateContent(params);
+        res.json(result);
+    } else {
+        res.status(400).json({ error: 'Unsupported endpoint.' });
+    }
 
   } catch (error) {
-    console.error('Error proxying to Gemini:', error);
+    console.error('Error proxying to Gemini:', error.message);
     res.status(500).json({ error: 'Failed to get response from AI.' });
   }
 });
@@ -37,7 +40,6 @@ app.post('/api/gemini-chat-stream', async (req, res) => {
             return res.status(400).json({ error: 'Missing message in request body.' });
         }
         
-        // In a real-world app, you might manage chat history/sessions differently.
         const chat = ai.chats.create({ model: 'gemini-2.5-flash', history: [] });
         const stream = await chat.sendMessageStream({ message });
 
@@ -47,6 +49,7 @@ app.post('/api/gemini-chat-stream', async (req, res) => {
         res.flushHeaders();
 
         for await (const chunk of stream) {
+            // SSE format: data: {JSON_STRING}\n\n
             res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         }
         res.end();

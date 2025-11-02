@@ -1,4 +1,3 @@
-
 import { GenerateContentResponse } from "@google/genai";
 import { NewsArticle, YouTubeVideo } from '../types';
 
@@ -33,7 +32,6 @@ export const streamChatResponse = (message: string) => {
                 return;
             }
             
-            // Use a TextDecoderStream to handle the byte stream from fetch
             const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
             
             while (true) {
@@ -47,7 +45,6 @@ export const streamChatResponse = (message: string) => {
                         const jsonString = line.substring(6);
                         if (jsonString) {
                             try {
-                                // Yield each chunk as it arrives
                                 yield JSON.parse(jsonString);
                             } catch (e) {
                                 console.error("Error parsing stream chunk:", e, "Chunk:", jsonString);
@@ -64,10 +61,13 @@ export const streamChatResponse = (message: string) => {
 export const getComplexResponse = async (prompt: string): Promise<string> => {
     try {
         const response: GenerateContentResponse = await callProxy<GenerateContentResponse>({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-            config: {
-                thinkingConfig: { thinkingBudget: 32768 }
+            endpoint: 'generateContent',
+            params: {
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+                config: {
+                    thinkingConfig: { thinkingBudget: 32768 }
+                }
             }
         });
         return response.text;
@@ -87,11 +87,14 @@ export const fetchAndSummarizeNews = async (url: string): Promise<NewsArticle[]>
         `;
 
         const response: GenerateContentResponse = await callProxy<GenerateContentResponse>({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                tools: [{ googleSearch: {} }],
-            },
+            endpoint: 'generateContent',
+            params: {
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    tools: [{ googleSearch: {} }],
+                },
+            }
         });
 
         let text = response.text.trim();
@@ -120,11 +123,14 @@ export const generateTagsForNewsSource = async (url: string): Promise<string[]> 
         `;
 
         const response: GenerateContentResponse = await callProxy<GenerateContentResponse>({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                tools: [{ googleSearch: {} }],
-            },
+            endpoint: 'generateContent',
+            params: {
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    tools: [{ googleSearch: {} }],
+                },
+            }
         });
         
         let text = response.text.trim();
@@ -168,12 +174,15 @@ export const searchYouTubeVideos = async ({ tags, sortBy, timeFrame, page }: You
         `;
 
         const response: GenerateContentResponse = await callProxy<GenerateContentResponse>({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-            config: {
-                tools: [{ googleSearch: {} }],
-                thinkingConfig: { thinkingBudget: 32768 }
-            },
+            endpoint: 'generateContent',
+            params: {
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+                config: {
+                    tools: [{ googleSearch: {} }],
+                    thinkingConfig: { thinkingBudget: 32768 }
+                },
+            }
         });
 
         let text = response.text.trim();
